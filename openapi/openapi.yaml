@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: Musement API
+  version: 0.1.0
+  description: <b>View a city and its weather</b>
+tags:
+  - name: Cities
+    description: Get a list of cities
+  - name: A city
+    description: Get a city
+  - name: A forecast
+    description: Get a forecast for the city
+  - name: A new forecast
+    description: Add a forecast for the city
+servers:
+  - url: http://127.0.0.1
+    description: Localhost
+paths:
+
+  /api/v3/cities:
+    get:
+      tags:
+        - Cities
+      summary: Get a list of cities
+      description: Cities.
+      operationId: AllCities
+      responses:
+        '200':
+          description: A list of cities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityCollection'
+
+  /api/v3/cities/{id}:
+
+    get:
+      tags:
+        - A city
+      summary: Get a city
+      description: A city.
+      operationId: GetCity
+      responses:
+        '200':
+          description: The city.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityAggregated'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The city's id.
+          schema:
+            type: integer
+
+  /api/v3/forecasts/{city_id}:
+
+    get:
+      tags:
+        - A forecast
+      summary: Get a forecast for the city for a given date
+      description: A forecast.
+      operationId: GetForecast
+      responses:
+        '200':
+          description: The forecast.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forecast'
+        '400':
+          description: Bad request.
+        '404':
+          description: No forecast found.
+        '420':
+          description: No city found.
+        '500':
+          description: Internal server error.
+      parameters:
+        - name: city_id
+          in: path
+          required: true
+          description: The city's id.
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: An optional date for the forecast
+          schema:
+            type: string
+            format: date
+
+    post:
+      tags:
+        - A new forecast
+      summary: Add a forecast for the city for a given date
+      description: A forecast.
+      operationId: SetForecast
+      responses:
+        '201':
+          description: The forecast was added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: integer
+        '204':
+          description: The forecast already exists.
+        '400':
+          description: Bad request.
+        '404':
+          description: No city found.
+        '500':
+          description: Internal server error.
+      parameters:
+        - name: city_id
+          in: path
+          required: true
+          description: The city's id.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - condition
+              properties:
+                condition:
+                  type: string
+                date:
+                  type: string
+                  format: date
+
+components:
+  schemas:
+
+    CityCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/CityCollectionItem'
+
+    CityCollectionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        top:
+          type: boolean
+        name:
+          type: string
+        code:
+          type: string
+        content:
+          type: string
+        meta_description:
+          type: string
+        weight:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        country:
+          $ref: '#/components/schemas/Country'
+        cover_image_url:
+          type: string
+        url:
+          type: string
+        activities_count:
+          type: integer
+        time_zone:
+          type: string
+        list_count:
+          type: integer
+        venue_count:
+          type: integer
+        show_in_popular:
+          type: boolean
+
+    Country:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        iso_code:
+          type: string
+
+    CityAggregated:
+      type: object
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        top:
+          type: boolean
+        name:
+          type: string
+        code:
+          type: string
+        content:
+          type: string
+        content_html:
+          type: string
+        meta_description:
+          type: string
+        meta_title:
+          type: string
+        headline:
+          type: string
+        weight:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        country:
+          $ref: '#/components/schemas/Country'
+        cover_image_url:
+          type: string
+        url:
+          type: string
+        activities_count:
+          type: integer
+        time_zone:
+          type: string
+        list_count:
+          type: integer
+        venue_count:
+          type: integer
+        slug:
+          type: string
+
+    Forecast:
+      type: object
+      properties:
+        city_id:
+          type: integer
+        date:
+          type: string
+          format: date
+        condition:
+          type: string

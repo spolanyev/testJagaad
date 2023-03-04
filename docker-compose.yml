@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    image: test_jagaad
+    container_name: app
+    ports:
+      - "80:8080"
+    volumes:
+      - "./:/var/www"
+      - "/var/www/var"
+      - "/var/www/vendor"
+    working_dir: /var/www
