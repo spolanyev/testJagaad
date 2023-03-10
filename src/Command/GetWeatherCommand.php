@@ -49,12 +49,12 @@ class GetWeatherCommand extends Command
                 ) {
                     $weatherUrl = sprintf(
                         $this->weatherApiUrl,
-                        urlencode((string) $city->latitude),
-                        urlencode((string) $city->longitude)
+                        urlencode((string)$city->latitude),
+                        urlencode((string)$city->longitude)
                     );
                     $weather = $this->weatherService->getWeather($weatherUrl, $this->httpClient);
                     $output->writeln(
-                        'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather
+                        'Processed city ' . $city->name . ' | ' . $weather->currentWeather . ' - ' . $weather->tomorrowWeather
                     );
                 }
                 break;
@@ -62,23 +62,29 @@ class GetWeatherCommand extends Command
                 ++$attemptQuantity;
                 if ($attemptQuantity !== $maxAttemptQuantity) {
                     $this->logger->warning('app:get-weather no API response, retrying');
-                    $output->writeln('`'.$exception->getMessage().'`, trying again');
+                    $output->writeln('`' . $exception->getMessage() . '`, trying again');
                 } else {
                     $this->logger->critical('app:get-weather no API response, stopping');
-                    $output->writeln('`'.$exception->getMessage().'`, stopping');
+                    $output->writeln('`' . $exception->getMessage() . '`, stopping');
                 }
             } catch (InvalidApiResponseException $exception) {
                 $this->logger->critical('app:get-weather invalid data received, stopping');
-                $output->writeln($exception->getMessage().', invalid data received');
+                $output->writeln($exception->getMessage() . ', invalid data received');
                 break;
             } catch (\Throwable $error) {
                 ++$attemptQuantity;
                 if ($attemptQuantity !== $maxAttemptQuantity) {
-                    $this->logger->error('app:get-weather got error `'.$error->getMessage().'`, retrying');
-                    $output->writeln('`'.$error->getMessage().'`, trying again');
+                    $this->logger->error(
+                        'app:get-weather got error `{error}`, retrying',
+                        ['error' => $error->getMessage()]
+                    );
+                    $output->writeln('`' . $error->getMessage() . '`, trying again');
                 } else {
-                    $this->logger->critical('app:get-weather got error `'.$error->getMessage().'`, stopping');
-                    $output->writeln('`'.$error->getMessage().'`, stopping');
+                    $this->logger->critical(
+                        'app:get-weather got error `{error}`, stopping',
+                        ['error' => $error->getMessage()]
+                    );
+                    $output->writeln('`' . $error->getMessage() . '`, stopping');
                 }
             }
         }
