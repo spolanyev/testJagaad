@@ -1,4 +1,5 @@
 .idea
+commands.txt
 gen
 bin/tmp.php
 .phpunit.cache

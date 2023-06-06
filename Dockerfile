@@ -1,4 +1,4 @@
-FROM php:8.2.3-fpm
+FROM php:8.2.6-fpm
 
 RUN apt-get update -y && apt-get install -y git zip
 
