@@ -5,7 +5,7 @@
 
 namespace App\Exception;
 
-class InvalidApiResponseException extends \InvalidArgumentException
+final class InvalidApiResponseException extends \InvalidArgumentException
 {
     public function __construct(
         string $message = 'Probably API response changed',

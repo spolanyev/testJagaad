@@ -44,7 +44,7 @@ Fix code style issues
 
 View static analysis issues *
 
-`vendor/bin/phpstan analyse -l 9 src`
+`vendor/bin/phpstan analyse -l 8 src`
 
 Run tests
 

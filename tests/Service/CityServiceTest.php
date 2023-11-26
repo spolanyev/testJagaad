@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class CityServiceTest extends TestCase
+final class CityServiceTest extends TestCase
 {
     public function testGetCities(): void
     {

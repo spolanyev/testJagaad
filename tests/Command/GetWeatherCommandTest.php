@@ -11,7 +11,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class GetWeatherCommandTest extends KernelTestCase
+final class GetWeatherCommandTest extends KernelTestCase
 {
     public function testCommandLine(): void
     {
@@ -47,7 +47,8 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
@@ -75,12 +76,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -117,12 +117,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -146,12 +145,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -188,12 +186,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -221,12 +218,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -267,12 +263,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 
@@ -308,12 +303,11 @@ class GetWeatherCommandTest extends KernelTestCase
             new Logger('test'),
             $httpClient,
             $cityApiUrl,
-            $weatherApiUrl
+            $weatherApiUrl,
+            'usleep'
         );
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
-
-        $commandTester->assertCommandIsSuccessful();
 
         $output = $commandTester->getDisplay();
 

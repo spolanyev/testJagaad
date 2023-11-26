@@ -5,7 +5,7 @@
 
 namespace App\Exception;
 
-class ApiNotAvailableException extends \UnexpectedValueException
+final class ApiNotAvailableException extends \UnexpectedValueException
 {
     public function __construct(
         string $message = 'Probably API not responding',

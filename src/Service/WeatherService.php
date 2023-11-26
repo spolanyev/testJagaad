@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class WeatherService
+final class WeatherService
 {
     public function getWeather(string $weatherUri, HttpClientInterface $httpClient): WeatherDto
     {

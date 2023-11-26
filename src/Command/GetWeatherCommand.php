@@ -5,6 +5,7 @@
 
 namespace App\Command;
 
+use App\Dto\CityDto;
 use App\Exception\ApiNotAvailableException;
 use App\Exception\InvalidApiResponseException;
 use App\Service\CityService;
@@ -20,15 +21,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
     name: 'app:get-weather',
     description: 'Get weather for cities',
 )]
-class GetWeatherCommand extends Command
+final class GetWeatherCommand extends Command
 {
     public function __construct(
         private readonly CityService $cityService,
         private readonly WeatherService $weatherService,
         private readonly LoggerInterface $logger,
-        private HttpClientInterface $httpClient,
+        private readonly HttpClientInterface $httpClient,
         private readonly string $cityApiUrl,
         private readonly string $weatherApiUrl,
+        private readonly string $sleepFunction = 'sleep',
     ) {
         parent::__construct();
     }
@@ -40,55 +42,101 @@ class GetWeatherCommand extends Command
 
         while ($attemptQuantity < $maxAttemptQuantity) {
             try {
-                $this->logger->info('app:get-weather is called');
-                foreach (
-                    $this->cityService->getCities(
-                        $this->cityApiUrl,
-                        $this->httpClient
-                    ) as $city
-                ) {
-                    $weatherUrl = sprintf(
-                        $this->weatherApiUrl,
-                        urlencode((string) $city->latitude),
-                        urlencode((string) $city->longitude)
-                    );
-                    $weather = $this->weatherService->getWeather($weatherUrl, $this->httpClient);
-                    $output->writeln(
-                        'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather
-                    );
-                }
-                break;
+                $this->processCities($output);
+
+                return Command::SUCCESS;
             } catch (ApiNotAvailableException $exception) {
-                ++$attemptQuantity;
-                if ($attemptQuantity !== $maxAttemptQuantity) {
-                    $this->logger->warning('app:get-weather no API response, retrying');
-                    $output->writeln('`'.$exception->getMessage().'`, trying again');
-                } else {
-                    $this->logger->critical('app:get-weather no API response, stopping');
-                    $output->writeln('`'.$exception->getMessage().'`, stopping');
-                }
+                $this->handleApiNotAvailableException($exception, $output, $attemptQuantity, $maxAttemptQuantity);
             } catch (InvalidApiResponseException $exception) {
-                $this->logger->critical('app:get-weather invalid data received, stopping');
-                $output->writeln($exception->getMessage().', invalid data received');
+                $this->handleInvalidApiResponseException($exception, $output);
                 break;
             } catch (\Throwable $error) {
-                ++$attemptQuantity;
-                if ($attemptQuantity !== $maxAttemptQuantity) {
-                    $this->logger->error(
-                        'app:get-weather got error `{error}`, retrying',
-                        ['error' => $error->getMessage()]
-                    );
-                    $output->writeln('`'.$error->getMessage().'`, trying again');
-                } else {
-                    $this->logger->critical(
-                        'app:get-weather got error `{error}`, stopping',
-                        ['error' => $error->getMessage()]
-                    );
-                    $output->writeln('`'.$error->getMessage().'`, stopping');
-                }
+                $this->handleThrowableError($error, $output, $attemptQuantity, $maxAttemptQuantity);
             }
         }
 
-        return Command::SUCCESS;
+        return Command::FAILURE;
+    }
+
+    private function processCities(OutputInterface $output): void
+    {
+        $this->logger->info('app:get-weather is called');
+
+        foreach ($this->cityService->getCities($this->cityApiUrl, $this->httpClient) as $city) {
+            $this->processCity($output, $city);
+        }
+    }
+
+    private function processCity(OutputInterface $output, CityDto $city): void
+    {
+        $weatherUrl = sprintf(
+            $this->weatherApiUrl,
+            urlencode((string) $city->latitude),
+            urlencode((string) $city->longitude)
+        );
+
+        $weather = $this->weatherService->getWeather($weatherUrl, $this->httpClient);
+
+        $output->writeln(
+            'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather
+        );
+    }
+
+    private function handleException(
+        \Throwable $error,
+        OutputInterface $output,
+        int &$attemptQuantity,
+        int $maxAttemptQuantity,
+        string $logMessage,
+    ): void {
+        ++$attemptQuantity;
+
+        $logContext = ['error' => $error->getMessage()];
+        $logMethod = $attemptQuantity !== $maxAttemptQuantity ? 'error' : 'critical';
+
+        $this->logger->$logMethod($logMessage, $logContext);
+        $output->writeln('`'.$error->getMessage().'`, '.('error' === $logMethod ? 'trying again' : 'stopping'));
+
+        if (is_callable($this->sleepFunction) && 'error' === $logMethod) {
+            ($this->sleepFunction)(pow($attemptQuantity, 2));
+        }
+    }
+
+    private function handleApiNotAvailableException(
+        ApiNotAvailableException $exception,
+        OutputInterface $output,
+        int &$attemptQuantity,
+        int $maxAttemptQuantity
+    ): void {
+        $this->handleException(
+            $exception,
+            $output,
+            $attemptQuantity,
+            $maxAttemptQuantity,
+            'app:get-weather no API response'
+        );
+    }
+
+    private function handleInvalidApiResponseException(
+        InvalidApiResponseException $exception,
+        OutputInterface $output
+    ): void {
+        $this->logger->critical('app:get-weather invalid data received, stopping');
+        $output->writeln($exception->getMessage().', invalid data received');
+    }
+
+    private function handleThrowableError(
+        \Throwable $error,
+        OutputInterface $output,
+        int &$attemptQuantity,
+        int $maxAttemptQuantity
+    ): void {
+        $this->handleException(
+            $error,
+            $output,
+            $attemptQuantity,
+            $maxAttemptQuantity,
+            'app:get-weather got error `{error}`'
+        );
     }
 }

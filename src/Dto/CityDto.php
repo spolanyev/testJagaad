@@ -8,7 +8,7 @@ namespace App\Dto;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class CityDto
+final readonly class CityDto
 {
     public function __construct(
         #[Assert\NotBlank]

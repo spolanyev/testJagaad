@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CityService
+final class CityService
 {
     /**
      * @return array<CityDto>

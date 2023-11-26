@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class WeatherServiceTest extends TestCase
+final class WeatherServiceTest extends TestCase
 {
     public function testGetWeather(): void
     {

@@ -8,7 +8,7 @@ namespace App\Dto;
 use Symfony\Component\Serializer\Annotation\SerializedPath;
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class WeatherDto
+final readonly class WeatherDto
 {
     public function __construct(
         #[Assert\NotBlank]
