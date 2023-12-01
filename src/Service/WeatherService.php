@@ -8,10 +8,9 @@ namespace App\Service;
 use App\Dto\WeatherDto;
 use App\Exception\ApiNotAvailableException;
 use App\Exception\InvalidApiResponseException;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validation;
@@ -28,13 +27,13 @@ final class WeatherService
             throw new ApiNotAvailableException();
         }
 
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
         $encoders = [new JsonEncoder()];
         $normalizers = [new ObjectNormalizer($classMetadataFactory)];
         $serializer = new Serializer($normalizers, $encoders);
         $weather = $serializer->deserialize($json, WeatherDto::class, 'json');
         $validator = Validation::createValidatorBuilder()
-            ->enableAnnotationMapping()
+            ->enableAttributeMapping()
             ->getValidator();
         $violations = $validator->validate($weather);
 

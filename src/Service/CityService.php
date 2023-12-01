@@ -34,7 +34,7 @@ final class CityService
         $serializer = new Serializer($normalizers, $encoders);
         $cities = $serializer->deserialize($json, CityDto::class.'[]', 'json');
         $validator = Validation::createValidatorBuilder()
-            ->enableAnnotationMapping()
+            ->enableAttributeMapping()
             ->getValidator();
         $violations = $validator->validate($cities);
 
