@@ -1,8 +1,13 @@
 # About
 
-This project is complete according to the task description [here](TEST_TASK_DESCRIPTION.pdf). It is a Symfony 6 console
+This project is complete according to the task description [here](TEST_TASK_DESCRIPTION.pdf). It is a Symfony console
 application that runs within a Docker container. It retrieves a list of cities from one API and immediately outputs the
 weather forecast for each city as soon as it is obtained from another API.
+
+
+> ⚠️ **Warning:** Currently, one of the APIs has been closed by authentication. It is no longer possible to get a list
+> of cities. But the unit tests work ;)
+
 
 To access the weather service, register at [Weather API](https://www.weatherapi.com/) and obtain an API key, which
 should then be added to the [.env](.env) file:
@@ -59,4 +64,4 @@ rules, consider using Rust instead.
 
 # Contacts
 
-If you are hiring, contact me at [spolanyev@gmail.com](mailto:spolanyev@gmail.com?subject=PHP%3A%20vacancy)
+If you are hiring, contact me at [spolanyev@gmail.com](mailto:spolanyev@gmail.com?subject=Symfony)
