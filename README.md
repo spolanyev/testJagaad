@@ -4,10 +4,8 @@ This project is complete according to the task description [here](TEST_TASK_DESC
 application that runs within a Docker container. It retrieves a list of cities from one API and immediately outputs the
 weather forecast for each city as soon as it is obtained from another API.
 
-
-> ⚠️ **Warning:** Currently, one of the APIs has been closed by authentication. It is no longer possible to get a list
-> of cities. But the unit tests work ;)
-
+> ⚠️ **Warning:** Currently, the second API has been closed by authentication. It is no longer possible to get a list of
+> cities. But the unit tests work ;)
 
 To access the weather service, register at [Weather API](https://www.weatherapi.com/) and obtain an API key, which
 should then be added to the [.env](.env) file:
