@@ -22,6 +22,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 final class GetWeatherCommand extends Command
 {
+    private const int MAX_ATTEMPTS = 3;
+
     public function __construct(
         private readonly CityService $cityService,
         private readonly WeatherService $weatherService,
@@ -33,12 +35,12 @@ final class GetWeatherCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $attemptQuantity = 0;
-        $maxAttemptQuantity = 3;
 
-        while ($attemptQuantity < $maxAttemptQuantity) {
+        while ($attemptQuantity < self::MAX_ATTEMPTS) {
             try {
                 $this->processCities($output);
 
@@ -48,7 +50,6 @@ final class GetWeatherCommand extends Command
                     $exception,
                     $output,
                     $attemptQuantity,
-                    $maxAttemptQuantity,
                     'app:get-weather no API response'
                 );
             } catch (InvalidApiResponseException $exception) {
@@ -59,7 +60,6 @@ final class GetWeatherCommand extends Command
                     $error,
                     $output,
                     $attemptQuantity,
-                    $maxAttemptQuantity,
                     'app:get-weather got error `{error}`'
                 );
             }
@@ -96,13 +96,12 @@ final class GetWeatherCommand extends Command
         \Throwable $error,
         OutputInterface $output,
         int &$attemptQuantity,
-        int $maxAttemptQuantity,
         string $logMessage,
     ): void {
         ++$attemptQuantity;
 
         $logContext = ['error' => $error->getMessage()];
-        $logSeverity = $attemptQuantity !== $maxAttemptQuantity ? 'error' : 'critical';
+        $logSeverity = self::MAX_ATTEMPTS !== $attemptQuantity ? 'error' : 'critical';
 
         $this->logger->$logSeverity($logMessage, $logContext);
         $output->writeln('`'.$error->getMessage().'`, '.('error' === $logSeverity ? 'trying again' : 'stopping'));
