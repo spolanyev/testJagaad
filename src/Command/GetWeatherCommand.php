@@ -44,12 +44,24 @@ final class GetWeatherCommand extends Command
 
                 return Command::SUCCESS;
             } catch (ApiNotAvailableException $exception) {
-                $this->handleApiNotAvailableException($exception, $output, $attemptQuantity, $maxAttemptQuantity);
+                $this->handleException(
+                    $exception,
+                    $output,
+                    $attemptQuantity,
+                    $maxAttemptQuantity,
+                    'app:get-weather no API response'
+                );
             } catch (InvalidApiResponseException $exception) {
                 $this->handleInvalidApiResponseException($exception, $output);
                 break;
             } catch (\Throwable $error) {
-                $this->handleThrowableError($error, $output, $attemptQuantity, $maxAttemptQuantity);
+                $this->handleException(
+                    $error,
+                    $output,
+                    $attemptQuantity,
+                    $maxAttemptQuantity,
+                    'app:get-weather got error `{error}`'
+                );
             }
         }
 
@@ -90,29 +102,14 @@ final class GetWeatherCommand extends Command
         ++$attemptQuantity;
 
         $logContext = ['error' => $error->getMessage()];
-        $logMethod = $attemptQuantity !== $maxAttemptQuantity ? 'error' : 'critical';
+        $logSeverity = $attemptQuantity !== $maxAttemptQuantity ? 'error' : 'critical';
 
-        $this->logger->$logMethod($logMessage, $logContext);
-        $output->writeln('`'.$error->getMessage().'`, '.('error' === $logMethod ? 'trying again' : 'stopping'));
+        $this->logger->$logSeverity($logMessage, $logContext);
+        $output->writeln('`'.$error->getMessage().'`, '.('error' === $logSeverity ? 'trying again' : 'stopping'));
 
-        if (is_callable($this->sleepFunction) && 'error' === $logMethod) {
+        if (is_callable($this->sleepFunction) && 'error' === $logSeverity) {
             ($this->sleepFunction)(pow($attemptQuantity, 2));
         }
-    }
-
-    private function handleApiNotAvailableException(
-        ApiNotAvailableException $exception,
-        OutputInterface $output,
-        int &$attemptQuantity,
-        int $maxAttemptQuantity
-    ): void {
-        $this->handleException(
-            $exception,
-            $output,
-            $attemptQuantity,
-            $maxAttemptQuantity,
-            'app:get-weather no API response'
-        );
     }
 
     private function handleInvalidApiResponseException(
@@ -121,20 +118,5 @@ final class GetWeatherCommand extends Command
     ): void {
         $this->logger->critical('app:get-weather invalid data received, stopping');
         $output->writeln($exception->getMessage().', invalid data received');
-    }
-
-    private function handleThrowableError(
-        \Throwable $error,
-        OutputInterface $output,
-        int &$attemptQuantity,
-        int $maxAttemptQuantity
-    ): void {
-        $this->handleException(
-            $error,
-            $output,
-            $attemptQuantity,
-            $maxAttemptQuantity,
-            'app:get-weather got error `{error}`'
-        );
     }
 }
