@@ -22,7 +22,7 @@ final class WeatherServiceTest extends TestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
-        $service = new WeatherService();
+        $service = new WeatherService($httpClient);
         $actual = $service->getWeather(
             'https://api.weatherapi.com/v1/forecast.json?key='.$_ENV['API_KEY'].'&q='
             .urlencode((string) 41.16).','.urlencode((string) -8.62).'&days=2',

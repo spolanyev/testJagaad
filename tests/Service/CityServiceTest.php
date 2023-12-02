@@ -21,7 +21,7 @@ final class CityServiceTest extends TestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
-        $service = new CityService();
+        $service = new CityService($httpClient);
         $actual = $service->getCities('https://api.musement.com/api/v3/cities', $httpClient);
 
         $this->assertSame(100, count($actual));

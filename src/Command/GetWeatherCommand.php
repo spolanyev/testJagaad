@@ -15,7 +15,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'app:get-weather',
@@ -27,7 +26,6 @@ final class GetWeatherCommand extends Command
         private readonly CityService $cityService,
         private readonly WeatherService $weatherService,
         private readonly LoggerInterface $logger,
-        private readonly HttpClientInterface $httpClient,
         private readonly string $cityApiUrl,
         private readonly string $weatherApiUrl,
         private readonly string $sleepFunction = 'sleep',
@@ -62,7 +60,7 @@ final class GetWeatherCommand extends Command
     {
         $this->logger->info('app:get-weather is called');
 
-        foreach ($this->cityService->getCities($this->cityApiUrl, $this->httpClient) as $city) {
+        foreach ($this->cityService->getCities($this->cityApiUrl) as $city) {
             $this->processCity($output, $city);
         }
     }
@@ -75,7 +73,7 @@ final class GetWeatherCommand extends Command
             urlencode((string) $city->longitude)
         );
 
-        $weather = $this->weatherService->getWeather($weatherUrl, $this->httpClient);
+        $weather = $this->weatherService->getWeather($weatherUrl);
 
         $output->writeln(
             'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather

@@ -42,10 +42,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -71,10 +70,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -112,10 +110,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -140,10 +137,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -181,10 +177,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -213,10 +208,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -258,10 +252,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
@@ -298,10 +291,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
         $command = new GetWeatherCommand(
-            new CityService(),
-            new WeatherService(),
+            new CityService($httpClient),
+            new WeatherService($httpClient),
             new Logger('test'),
-            $httpClient,
             $cityApiUrl,
             $weatherApiUrl,
             'usleep'
