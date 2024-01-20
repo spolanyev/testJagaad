@@ -39,10 +39,11 @@ final class GetWeatherCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $attemptQuantity = 0;
+        $processedCities = [];
 
         while ($attemptQuantity < self::MAX_ATTEMPTS) {
             try {
-                $this->processCities($output);
+                $this->processCities($output, $processedCities);
 
                 return Command::SUCCESS;
             } catch (ApiNotAvailableException $exception) {
@@ -68,12 +69,18 @@ final class GetWeatherCommand extends Command
         return Command::FAILURE;
     }
 
-    private function processCities(OutputInterface $output): void
+    /**
+     * @param array<string> $processedCities
+     */
+    private function processCities(OutputInterface $output, array &$processedCities): void
     {
         $this->logger->info('app:get-weather is called');
 
         foreach ($this->cityService->getCities($this->cityApiUrl) as $city) {
-            $this->processCity($output, $city);
+            if (!in_array($city->name, $processedCities, true)) {
+                $this->processCity($output, $city);
+                $processedCities[] = $city->name;
+            }
         }
     }
 
