@@ -10,7 +10,7 @@ final class ApiNotAvailableException extends \UnexpectedValueException
     public function __construct(
         string $message = 'Probably API not responding',
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }

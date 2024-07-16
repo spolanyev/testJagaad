@@ -10,7 +10,7 @@ final class InvalidApiResponseException extends \InvalidArgumentException
     public function __construct(
         string $message = 'Probably API response changed',
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }
