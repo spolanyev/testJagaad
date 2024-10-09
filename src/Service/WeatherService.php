@@ -7,14 +7,20 @@ namespace App\Service;
 
 use App\Dto\WeatherDto;
 
-final class WeatherService extends ApiService
+final class WeatherService extends AbstractJsonApiClient
 {
     public function getWeather(string $weatherUri): WeatherDto
     {
-        $json = $this->makeGetRequest($weatherUri);
-        $weather = $this->deserializeJson($json, WeatherDto::class);
-        $this->validateDto($weather);
+        return $this->fetchData($weatherUri);
+    }
 
-        return $weather;
+    protected function getDtoClass(): string
+    {
+        return WeatherDto::class;
+    }
+
+    protected function validate(object|array $dto): void
+    {
+        $this->validateDto($dto);
     }
 }

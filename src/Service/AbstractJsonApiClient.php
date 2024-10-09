@@ -16,11 +16,18 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ApiService
+abstract class AbstractJsonApiClient
 {
     public function __construct(private readonly HttpClientInterface $httpClient)
     {
     }
+
+    abstract protected function getDtoClass(): string;
+
+    /**
+     * @param object|array<object> $dto
+     */
+    abstract protected function validate(object|array $dto): void;
 
     protected function makeGetRequest(string $uri): string
     {
@@ -34,14 +41,14 @@ class ApiService
         return $json;
     }
 
-    protected function deserializeJson(string $json, string $dtoClass, string $format = 'json'): mixed
+    protected function deserializeJson(string $json): mixed
     {
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
         $encoders = [new JsonEncoder()];
         $normalizers = [new ObjectNormalizer($classMetadataFactory), new ArrayDenormalizer()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        return $serializer->deserialize($json, $dtoClass, $format);
+        return $serializer->deserialize($json, $this->getDtoClass(), 'json');
     }
 
     /**
@@ -57,5 +64,14 @@ class ApiService
         if ($violations->count()) {
             throw new InvalidApiResponseException();
         }
+    }
+
+    public function fetchData(string $uri): mixed
+    {
+        $json = $this->makeGetRequest($uri);
+        $dto = $this->deserializeJson($json);
+        $this->validate($dto);
+
+        return $dto;
     }
 }

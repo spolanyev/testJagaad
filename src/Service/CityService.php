@@ -7,17 +7,23 @@ namespace App\Service;
 
 use App\Dto\CityDto;
 
-final class CityService extends ApiService
+final class CityService extends AbstractJsonApiClient
 {
     /**
      * @return array<CityDto>
      */
     public function getCities(string $cityUri): array
     {
-        $json = $this->makeGetRequest($cityUri);
-        $cities = $this->deserializeJson($json, CityDto::class.'[]');
-        $this->validateDto($cities);
+        return $this->fetchData($cityUri);
+    }
 
-        return $cities;
+    protected function getDtoClass(): string
+    {
+        return CityDto::class.'[]';
+    }
+
+    protected function validate(object|array $dto): void
+    {
+        $this->validateDto($dto);
     }
 }
