@@ -13,13 +13,15 @@ use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractJsonApiClient
 {
-    public function __construct(private readonly HttpClientInterface $httpClient)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $httpClient,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     abstract protected function getDtoClass(): string;
@@ -56,11 +58,7 @@ abstract class AbstractJsonApiClient
      */
     protected function validateDto(object|array $dto): void
     {
-        $validator = Validation::createValidatorBuilder()
-            ->enableAttributeMapping()
-            ->getValidator();
-        $violations = $validator->validate($dto);
-
+        $violations = $this->validator->validate($dto);
         if ($violations->count()) {
             throw new InvalidApiResponseException();
         }

@@ -27,6 +27,15 @@ services:
   App\Service\CityProcessor:
     arguments:
       $cityApiUrl: '%city_api_url%'
+
   App\Service\WeatherFetcher:
     arguments:
       $weatherApiUrl: '%weather_api_url%'
+
+  App\Service\WeatherServiceInterface: '@App\Service\WeatherServiceApiClient'
+  App\Service\CityServiceInterface: '@App\Service\CityServiceApiClient'
+
+  App\Service\ValidatorFactory:
+    factory: [ 'App\Service\ValidatorFactory', 'createValidator' ]
+
+  Symfony\Component\Validator\Validator\ValidatorInterface: '@App\Service\ValidatorFactory'

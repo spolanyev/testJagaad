@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final readonly class WeatherFetcher
 {
     public function __construct(
-        private WeatherServiceApiClient $weatherService,
+        private WeatherServiceInterface $weatherService,
         private string $weatherApiUrl,
     ) {
     }

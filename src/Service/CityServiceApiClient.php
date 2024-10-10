@@ -7,7 +7,7 @@ namespace App\Service;
 
 use App\Dto\CityDto;
 
-final class CityServiceApiClient extends AbstractJsonApiClient
+final class CityServiceApiClient extends AbstractJsonApiClient implements CityServiceInterface
 {
     /**
      * @return array<CityDto>

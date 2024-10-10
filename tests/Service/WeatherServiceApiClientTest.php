@@ -6,11 +6,11 @@
 namespace App\Tests\Service;
 
 use App\Service\WeatherServiceApiClient;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-final class WeatherServiceTest extends TestCase
+final class WeatherServiceApiClientTest extends KernelTestCase
 {
     public function testGetWeather(): void
     {
@@ -22,7 +22,8 @@ final class WeatherServiceTest extends TestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
-        $service = new WeatherServiceApiClient($httpClient);
+        $validator = self::getContainer()->get('Symfony\Component\Validator\Validator\ValidatorInterface');
+        $service = new WeatherServiceApiClient($httpClient, $validator);
         $actual = $service->getWeather(
             'https://api.weatherapi.com/v1/forecast.json?key='.$_ENV['API_KEY'].'&q='
             .urlencode((string) 41.16).','.urlencode((string) -8.62).'&days=2'

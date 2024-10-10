@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final readonly class CityProcessor
 {
     public function __construct(
-        private CityServiceApiClient $cityService,
+        private CityServiceInterface $cityService,
         private WeatherFetcher $weatherFetcher,
         private string $cityApiUrl,
     ) {

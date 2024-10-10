@@ -21,8 +21,9 @@ final class GetWeatherCommandTest extends KernelTestCase
         $container = self::getContainer();
         $cityApiUrl = $container->getParameter('city_api_url');
         $weatherApiUrl = $container->getParameter('weather_api_url');
-        $cityService = new CityServiceApiClient($httpClient);
-        $weatherService = new WeatherServiceApiClient($httpClient);
+        $validator = $container->get('Symfony\Component\Validator\Validator\ValidatorInterface');
+        $cityService = new CityServiceApiClient($httpClient, $validator);
+        $weatherService = new WeatherServiceApiClient($httpClient, $validator);
         $logger = new Logger('test');
         $weatherFetcher = new WeatherFetcher($weatherService, $weatherApiUrl);
         $cityProcessor = new CityProcessor($cityService, $weatherFetcher, $cityApiUrl);

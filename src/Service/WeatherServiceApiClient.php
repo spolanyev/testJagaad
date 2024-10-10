@@ -7,7 +7,7 @@ namespace App\Service;
 
 use App\Dto\WeatherDto;
 
-final class WeatherServiceApiClient extends AbstractJsonApiClient
+final class WeatherServiceApiClient extends AbstractJsonApiClient implements WeatherServiceInterface
 {
     public function getWeather(string $weatherUri): WeatherDto
     {
