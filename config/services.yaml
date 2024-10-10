@@ -39,3 +39,8 @@ services:
     factory: [ 'App\Service\ValidatorFactory', 'createValidator' ]
 
   Symfony\Component\Validator\Validator\ValidatorInterface: '@App\Service\ValidatorFactory'
+
+  App\Service\SerializerFactory:
+    factory: [ 'App\Service\SerializerFactory', 'createSerializer' ]
+
+  Symfony\Component\Serializer\SerializerInterface: '@App\Service\SerializerFactory'

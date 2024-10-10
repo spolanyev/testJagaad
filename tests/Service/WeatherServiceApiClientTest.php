@@ -22,8 +22,9 @@ final class WeatherServiceApiClientTest extends KernelTestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
+        $serializer = self::getContainer()->get('Symfony\Component\Serializer\SerializerInterface');
         $validator = self::getContainer()->get('Symfony\Component\Validator\Validator\ValidatorInterface');
-        $service = new WeatherServiceApiClient($httpClient, $validator);
+        $service = new WeatherServiceApiClient($httpClient, $serializer, $validator);
         $actual = $service->getWeather(
             'https://api.weatherapi.com/v1/forecast.json?key='.$_ENV['API_KEY'].'&q='
             .urlencode((string) 41.16).','.urlencode((string) -8.62).'&days=2'

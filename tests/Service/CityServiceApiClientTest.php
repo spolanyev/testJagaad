@@ -21,8 +21,9 @@ final class CityServiceApiClientTest extends KernelTestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
+        $serializer = self::getContainer()->get('Symfony\Component\Serializer\SerializerInterface');
         $validator = self::getContainer()->get('Symfony\Component\Validator\Validator\ValidatorInterface');
-        $service = new CityServiceApiClient($httpClient, $validator);
+        $service = new CityServiceApiClient($httpClient, $serializer, $validator);
         $actual = $service->getCities('https://api.musement.com/api/v3/cities');
 
         $this->assertSame(100, count($actual));
