@@ -5,7 +5,7 @@
 
 namespace App\Tests\Service;
 
-use App\Service\CityService;
+use App\Service\CityServiceApiClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -21,8 +21,8 @@ final class CityServiceTest extends TestCase
         $mockResponse = new MockResponse((string) file_get_contents($file));
         $httpClient = new MockHttpClient($mockResponse);
 
-        $service = new CityService($httpClient);
-        $actual = $service->getCities('https://api.musement.com/api/v3/cities', $httpClient);
+        $service = new CityServiceApiClient($httpClient);
+        $actual = $service->getCities('https://api.musement.com/api/v3/cities');
 
         $this->assertSame(100, count($actual));
         $this->assertSame('Porto', $actual[0]->name);

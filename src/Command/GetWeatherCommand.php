@@ -5,11 +5,9 @@
 
 namespace App\Command;
 
-use App\Dto\CityDto;
 use App\Exception\ApiNotAvailableException;
 use App\Exception\InvalidApiResponseException;
-use App\Service\CityService;
-use App\Service\WeatherService;
+use App\Service\CityProcessor;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,11 +23,8 @@ final class GetWeatherCommand extends Command
     private const int MAX_ATTEMPTS = 3;
 
     public function __construct(
-        private readonly CityService $cityService,
-        private readonly WeatherService $weatherService,
+        private readonly CityProcessor $cityProcessor,
         private readonly LoggerInterface $logger,
-        private readonly string $cityApiUrl,
-        private readonly string $weatherApiUrl,
         private readonly string $sleepFunction = 'sleep',
     ) {
         parent::__construct();
@@ -39,11 +34,12 @@ final class GetWeatherCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $attemptQuantity = 0;
-        $processedCities = [];
+
+        $this->logger->info('app:get-weather is called');
 
         while ($attemptQuantity < self::MAX_ATTEMPTS) {
             try {
-                $this->processCities($output, $processedCities);
+                $this->cityProcessor->processCities($output);
 
                 return Command::SUCCESS;
             } catch (ApiNotAvailableException $exception) {
@@ -67,36 +63,6 @@ final class GetWeatherCommand extends Command
         }
 
         return Command::FAILURE;
-    }
-
-    /**
-     * @param array<string> $processedCities
-     */
-    private function processCities(OutputInterface $output, array &$processedCities): void
-    {
-        $this->logger->info('app:get-weather is called');
-
-        foreach ($this->cityService->getCities($this->cityApiUrl) as $city) {
-            if (!in_array($city->name, $processedCities, true)) {
-                $this->processCity($output, $city);
-                $processedCities[] = $city->name;
-            }
-        }
-    }
-
-    private function processCity(OutputInterface $output, CityDto $city): void
-    {
-        $weatherUrl = sprintf(
-            $this->weatherApiUrl,
-            urlencode((string) $city->latitude),
-            urlencode((string) $city->longitude)
-        );
-
-        $weather = $this->weatherService->getWeather($weatherUrl);
-
-        $output->writeln(
-            'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather
-        );
     }
 
     private function handleException(

@@ -3,8 +3,10 @@
 namespace App\Tests\Command;
 
 use App\Command\GetWeatherCommand;
-use App\Service\CityService;
-use App\Service\WeatherService;
+use App\Service\CityProcessor;
+use App\Service\CityServiceApiClient;
+use App\Service\WeatherFetcher;
+use App\Service\WeatherServiceApiClient;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -13,6 +15,26 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class GetWeatherCommandTest extends KernelTestCase
 {
+    private function createCommand(callable $mockCallback): CommandTester
+    {
+        $httpClient = new MockHttpClient($mockCallback);
+        $container = self::getContainer();
+        $cityApiUrl = $container->getParameter('city_api_url');
+        $weatherApiUrl = $container->getParameter('weather_api_url');
+        $cityService = new CityServiceApiClient($httpClient);
+        $weatherService = new WeatherServiceApiClient($httpClient);
+        $logger = new Logger('test');
+        $weatherFetcher = new WeatherFetcher($weatherService, $weatherApiUrl);
+        $cityProcessor = new CityProcessor($cityService, $weatherFetcher, $cityApiUrl);
+        $command = new GetWeatherCommand(
+            $cityProcessor,
+            $logger,
+            'usleep'
+        );
+
+        return new CommandTester($command);
+    }
+
     public function testCommandLine(): void
     {
         $cities = (string) file_get_contents(
@@ -26,7 +48,7 @@ final class GetWeatherCommandTest extends KernelTestCase
                 .DIRECTORY_SEPARATOR.'api.weatherapi.com'.DIRECTORY_SEPARATOR.'v1'.DIRECTORY_SEPARATOR.'forecast'
                 .DIRECTORY_SEPARATOR.'get-2-days.json'
             );
-        $mockCallback = function ($method, $url, $options) use ($cities, $weather) {
+        $mockCallback = function () use ($cities, $weather) {
             static $isFirst = true;
             if ($isFirst) {
                 $isFirst = false;
@@ -36,20 +58,8 @@ final class GetWeatherCommandTest extends KernelTestCase
                 return new MockResponse($weather);
             }
         };
-        $httpClient = new MockHttpClient($mockCallback);
 
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $commandTester->assertCommandIsSuccessful();
@@ -62,22 +72,11 @@ final class GetWeatherCommandTest extends KernelTestCase
     public function testNoCityApiReply(): void
     {
         $cities = '';
-        $mockCallback = function ($method, $url, $options) use ($cities) {
+        $mockCallback = function () use ($cities) {
             return new MockResponse($cities);
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -94,7 +93,7 @@ final class GetWeatherCommandTest extends KernelTestCase
             .DIRECTORY_SEPARATOR.'cities'.DIRECTORY_SEPARATOR.'get.json'
         );
         $weather = '';
-        $mockCallback = function ($method, $url, $options) use ($cities, $weather) {
+        $mockCallback = function () use ($cities, $weather) {
             static $count = 0;
             if (0 === $count % 2) {
                 $mock = new MockResponse($cities);
@@ -105,19 +104,8 @@ final class GetWeatherCommandTest extends KernelTestCase
 
             return $mock;
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -129,22 +117,11 @@ final class GetWeatherCommandTest extends KernelTestCase
     public function testStrangeCityApiReply(): void
     {
         $cities = '{"service":"ok"}';
-        $mockCallback = function ($method, $url, $options) use ($cities) {
+        $mockCallback = function () use ($cities) {
             return new MockResponse($cities);
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -161,7 +138,7 @@ final class GetWeatherCommandTest extends KernelTestCase
             .DIRECTORY_SEPARATOR.'cities'.DIRECTORY_SEPARATOR.'get.json'
         );
         $weather = '{"service":"ok"}';
-        $mockCallback = function ($method, $url, $options) use ($cities, $weather) {
+        $mockCallback = function () use ($cities, $weather) {
             static $count = 0;
             if (0 === $count % 2) {
                 $mock = new MockResponse($cities);
@@ -172,19 +149,8 @@ final class GetWeatherCommandTest extends KernelTestCase
 
             return $mock;
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -200,22 +166,11 @@ final class GetWeatherCommandTest extends KernelTestCase
             .DIRECTORY_SEPARATOR.'api.musement.com'.DIRECTORY_SEPARATOR.'api'.DIRECTORY_SEPARATOR.'v3'
             .DIRECTORY_SEPARATOR.'cities'.DIRECTORY_SEPARATOR.'invalid-get.json'
         );
-        $mockCallback = function ($method, $url, $options) use ($cities) {
+        $mockCallback = function () use ($cities) {
             return new MockResponse($cities);
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -236,7 +191,7 @@ final class GetWeatherCommandTest extends KernelTestCase
                 .DIRECTORY_SEPARATOR.'api.weatherapi.com'.DIRECTORY_SEPARATOR.'v1'.DIRECTORY_SEPARATOR.'forecast'
                 .DIRECTORY_SEPARATOR.'invalid-get-2-days.json'
             );
-        $mockCallback = function ($method, $url, $options) use ($cities, $weather) {
+        $mockCallback = function () use ($cities, $weather) {
             static $count = 0;
             if (0 === $count % 2) {
                 $mock = new MockResponse($cities);
@@ -247,19 +202,8 @@ final class GetWeatherCommandTest extends KernelTestCase
 
             return $mock;
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
@@ -275,7 +219,7 @@ final class GetWeatherCommandTest extends KernelTestCase
             .DIRECTORY_SEPARATOR.'cities'.DIRECTORY_SEPARATOR.'get.json'
         );
         $weather = '{"name:"value"}';
-        $mockCallback = function ($method, $url, $options) use ($cities, $weather) {
+        $mockCallback = function () use ($cities, $weather) {
             static $count = 0;
             if (0 === $count % 2) {
                 $mock = new MockResponse($cities);
@@ -286,19 +230,8 @@ final class GetWeatherCommandTest extends KernelTestCase
 
             return $mock;
         };
-        $httpClient = new MockHttpClient($mockCallback);
-        $container = self::getContainer();
-        $cityApiUrl = $container->getParameter('city_api_url');
-        $weatherApiUrl = $container->getParameter('weather_api_url');
-        $command = new GetWeatherCommand(
-            new CityService($httpClient),
-            new WeatherService($httpClient),
-            new Logger('test'),
-            $cityApiUrl,
-            $weatherApiUrl,
-            'usleep'
-        );
-        $commandTester = new CommandTester($command);
+
+        $commandTester = $this->createCommand($mockCallback);
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();

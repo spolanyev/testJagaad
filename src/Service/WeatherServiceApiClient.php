@@ -5,21 +5,18 @@
 
 namespace App\Service;
 
-use App\Dto\CityDto;
+use App\Dto\WeatherDto;
 
-final class CityService extends AbstractJsonApiClient
+final class WeatherServiceApiClient extends AbstractJsonApiClient
 {
-    /**
-     * @return array<CityDto>
-     */
-    public function getCities(string $cityUri): array
+    public function getWeather(string $weatherUri): WeatherDto
     {
-        return $this->fetchData($cityUri);
+        return $this->fetchData($weatherUri);
     }
 
     protected function getDtoClass(): string
     {
-        return CityDto::class.'[]';
+        return WeatherDto::class;
     }
 
     protected function validate(object|array $dto): void

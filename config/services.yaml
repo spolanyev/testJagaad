@@ -24,7 +24,9 @@ services:
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
-  App\Command\GetWeatherCommand:
+  App\Service\CityProcessor:
     arguments:
       $cityApiUrl: '%city_api_url%'
+  App\Service\WeatherFetcher:
+    arguments:
       $weatherApiUrl: '%weather_api_url%'
