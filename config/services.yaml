@@ -33,6 +33,7 @@ services:
       $weatherApiUrl: '%weather_api_url%'
 
   App\Service\WeatherServiceInterface: '@App\Service\WeatherServiceApiClient'
+
   App\Service\CityServiceInterface: '@App\Service\CityServiceApiClient'
 
   App\Service\ValidatorFactory:
@@ -44,3 +45,5 @@ services:
     factory: [ 'App\Service\SerializerFactory', 'createSerializer' ]
 
   Symfony\Component\Serializer\SerializerInterface: '@App\Service\SerializerFactory'
+
+  App\Service\OutputServiceInterface: '@App\Service\ConsoleOutputService'

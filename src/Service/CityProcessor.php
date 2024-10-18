@@ -5,8 +5,6 @@
 
 namespace App\Service;
 
-use Symfony\Component\Console\Output\OutputInterface;
-
 final readonly class CityProcessor
 {
     public function __construct(
@@ -16,12 +14,12 @@ final readonly class CityProcessor
     ) {
     }
 
-    public function processCities(OutputInterface $output): void
+    public function processCities(): void
     {
         $processedCities = [];
         foreach ($this->cityService->getCities($this->cityApiUrl) as $city) {
             if (!in_array($city->name, $processedCities, true)) {
-                $this->weatherFetcher->fetchWeatherForCity($output, $city);
+                $this->weatherFetcher->fetchWeatherForCity($city);
                 $processedCities[] = $city->name;
             }
         }

@@ -8,6 +8,7 @@ namespace App\Command;
 use App\Exception\ApiNotAvailableException;
 use App\Exception\InvalidApiResponseException;
 use App\Service\CityProcessor;
+use App\Service\ConsoleOutputService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,6 +26,7 @@ final class GetWeatherCommand extends Command
     public function __construct(
         private readonly CityProcessor $cityProcessor,
         private readonly LoggerInterface $logger,
+        private readonly ConsoleOutputService $outputService,
         private readonly string $sleepFunction = 'sleep',
     ) {
         parent::__construct();
@@ -33,29 +35,28 @@ final class GetWeatherCommand extends Command
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->outputService->setOutput($output);
         $attemptQuantity = 0;
 
         $this->logger->info('app:get-weather is called');
 
         while ($attemptQuantity < self::MAX_ATTEMPTS) {
             try {
-                $this->cityProcessor->processCities($output);
+                $this->cityProcessor->processCities();
 
                 return Command::SUCCESS;
             } catch (ApiNotAvailableException $exception) {
                 $this->handleException(
                     $exception,
-                    $output,
                     $attemptQuantity,
                     'app:get-weather no API response'
                 );
             } catch (InvalidApiResponseException $exception) {
-                $this->handleInvalidApiResponseException($exception, $output);
+                $this->handleInvalidApiResponseException($exception);
                 break;
             } catch (\Throwable $error) {
                 $this->handleException(
                     $error,
-                    $output,
                     $attemptQuantity,
                     'app:get-weather got error `{error}`'
                 );
@@ -67,7 +68,6 @@ final class GetWeatherCommand extends Command
 
     private function handleException(
         \Throwable $error,
-        OutputInterface $output,
         int &$attemptQuantity,
         string $logMessage,
     ): void {
@@ -77,18 +77,18 @@ final class GetWeatherCommand extends Command
         $logSeverity = self::MAX_ATTEMPTS !== $attemptQuantity ? 'error' : 'critical';
 
         $this->logger->$logSeverity($logMessage, $logContext);
-        $output->writeln('`'.$error->getMessage().'`, '.('error' === $logSeverity ? 'trying again' : 'stopping'));
+        $this->outputService->write(
+            '`'.$error->getMessage().'`, '.('error' === $logSeverity ? 'trying again' : 'stopping')
+        );
 
         if (is_callable($this->sleepFunction) && 'error' === $logSeverity) {
             ($this->sleepFunction)(pow($attemptQuantity, 2));
         }
     }
 
-    private function handleInvalidApiResponseException(
-        InvalidApiResponseException $exception,
-        OutputInterface $output
-    ): void {
+    private function handleInvalidApiResponseException(InvalidApiResponseException $exception): void
+    {
         $this->logger->critical('app:get-weather invalid data received, stopping');
-        $output->writeln($exception->getMessage().', invalid data received');
+        $this->outputService->write($exception->getMessage().', invalid data received');
     }
 }

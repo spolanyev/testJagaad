@@ -6,17 +6,17 @@
 namespace App\Service;
 
 use App\Dto\CityDto;
-use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class WeatherFetcher
 {
     public function __construct(
         private WeatherServiceInterface $weatherService,
         private string $weatherApiUrl,
+        private OutputServiceInterface $output,
     ) {
     }
 
-    public function fetchWeatherForCity(OutputInterface $output, CityDto $city): void
+    public function fetchWeatherForCity(CityDto $city): void
     {
         $weatherUrl = sprintf(
             $this->weatherApiUrl,
@@ -25,7 +25,7 @@ final readonly class WeatherFetcher
         );
 
         $weather = $this->weatherService->getWeather($weatherUrl);
-        $output->writeln(
+        $this->output->write(
             'Processed city '.$city->name.' | '.$weather->currentWeather.' - '.$weather->tomorrowWeather
         );
     }
