@@ -8,7 +8,7 @@ namespace App\Service;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ValidatorFactory
+final class ValidatorFactory
 {
     public static function createValidator(): ValidatorInterface
     {
