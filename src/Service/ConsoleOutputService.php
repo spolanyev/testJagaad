@@ -11,7 +11,7 @@ final class ConsoleOutputService implements OutputServiceInterface
 {
     private ?OutputInterface $output;
 
-    public function setOutput(?OutputInterface $output): void
+    public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
     }
