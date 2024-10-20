@@ -8,7 +8,7 @@ namespace App\Command;
 use App\Exception\ApiNotAvailableException;
 use App\Exception\InvalidApiResponseException;
 use App\Service\CityProcessor;
-use App\Service\ConsoleOutputService;
+use App\Service\OutputServiceInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -26,7 +26,7 @@ final class GetWeatherCommand extends Command
     public function __construct(
         private readonly CityProcessor $cityProcessor,
         private readonly LoggerInterface $logger,
-        private readonly ConsoleOutputService $outputService,
+        private readonly OutputServiceInterface $outputService,
         private readonly string $sleepFunction = 'sleep',
     ) {
         parent::__construct();
